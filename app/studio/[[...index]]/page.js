@@ -145,5 +145,17 @@ const config = defineConfig({
 });
 
 export default function StudioPage() {
-  return <NextStudio config={config} />;
+  return (
+    <div style={{ height: "100vh", width: "100vw", fixed: "top", left: 0 }}>
+      <NextStudio config={config} />
+    </div>
+  );
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("error", (e) => {
+    if (e.message.includes("scrollTop")) {
+      e.stopImmediatePropagation();
+    }
+  });
 }
