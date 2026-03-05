@@ -1,4 +1,4 @@
-export const runtime = "edge";
+export const runtime = "edge"; // ДОБАВЛЕНО: Жесткий сброс кэша для страницы 404
 
 import Link from "next/link";
 
