@@ -3,17 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
+    "@portabletext/react": "latest",
+    "@sanity/code-input": "^4.1.1",
+    "@sanity/vision": "3.44.0",
+    "lucide-react": "latest",
     "next": "14.2.3",
+    "next-sanity": "9.4.7",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-syntax-highlighter": "latest",
     "sanity": "3.44.0",
-    "next-sanity": "9.4.7",
-    "@sanity/vision": "3.44.0",
-    "@portabletext/react": "latest",
-    "lucide-react": "latest",
     "styled-components": "6.1.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
   }
 }

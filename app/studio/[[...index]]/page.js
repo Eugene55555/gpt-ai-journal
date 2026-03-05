@@ -1,43 +1,124 @@
 "use client";
+
 export const runtime = "edge";
 
 import { NextStudio } from "next-sanity/studio";
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
+import { codeInput } from "@sanity/code-input";
 
 const config = defineConfig({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   dataset: "production",
   title: "ULTRA AI JOURNAL CMS",
   basePath: "/studio",
-  plugins: [structureTool(), visionTool()],
+  plugins: [
+    structureTool({
+      structure: (S) =>
+        S.list()
+          .title("Контент")
+          .items([
+            S.listItem()
+              .title("Настройки сайта")
+              .id("siteSettings")
+              .child(
+                S.document()
+                  .schemaType("siteSettings")
+                  .documentId("siteSettings")
+              ),
+            S.divider(),
+            ...S.documentTypeListItems().filter(
+              (listItem) => !["siteSettings"].includes(listItem.getId())
+            ),
+          ]),
+    }),
+    visionTool(),
+    codeInput(),
+  ],
   schema: {
     types: [
+      {
+        name: "category",
+        type: "document",
+        title: "Категории",
+        fields: [
+          { name: "title", type: "string", title: "Название (Например: Исследования)" },
+          { name: "value", type: "string", title: "Значение в URL (Например: Research)" },
+        ],
+      },
+      {
+        name: "siteSettings",
+        type: "document",
+        title: "Настройки сайта",
+        groups: [
+          { name: "general", title: "Общие" },
+          { name: "home", title: "Главная страница" },
+          { name: "sidebar", title: "Сайдбар (Рассылка)" },
+        ],
+        fields: [
+          { name: "title", type: "string", title: "Название сайта", group: "general" },
+          { name: "description", type: "text", title: "SEO Описание", group: "general" },
+          { name: "footerText", type: "string", title: "Копирайт в футере", group: "general" },
+          {
+            name: "navItems", // ИСПРАВЛЕНО: Переименовали поле, чтобы сбросить конфликт в базе
+            type: "array",
+            title: "Меню навигации (Выберите категории)",
+            group: "general",
+            of: [
+              {
+                type: "reference",
+                to: [{ type: "category" }]
+              },
+            ],
+          },
+          {
+            name: "socials",
+            type: "array",
+            title: "Социальные сети",
+            group: "general",
+            of: [
+              {
+                type: "object",
+                fields: [
+                  { name: "platform", type: "string", title: "Платформа (Например: Twitter)" },
+                  { name: "url", type: "url", title: "Ссылка" },
+                ],
+              },
+            ],
+          },
+          { name: "heroTitle", type: "text", title: "Большой заголовок (Enter для переноса)", group: "home", rows: 3 },
+          { name: "heroSubtitle", type: "text", title: "Подзаголовок", group: "home", rows: 2 },
+          { name: "newsletterTitle", type: "string", title: "Заголовок рассылки", group: "sidebar" },
+          { name: "newsletterText", type: "text", title: "Текст рассылки", group: "sidebar", rows: 2 },
+          { name: "newsletterButton", type: "string", title: "Текст на кнопке", group: "sidebar" },
+        ],
+      },
       {
         name: "post",
         type: "document",
         title: "Профессиональные публикации",
-        // Группировка полей по вкладкам
         groups: [
           { name: "main", title: "Контент" },
           { name: "media", title: "Медиа" },
           { name: "seo", title: "SEO и настройки" },
         ],
         fields: [
-          // 1. Заголовок с проверкой (Validation)
           {
             name: "title",
             type: "string",
             title: "Заголовок",
             group: "main",
-            validation: (Rule) =>
-              Rule.required()
-                .min(10)
-                .max(80)
-                .error("Заголовок должен быть от 10 до 80 символов"),
+            validation: (Rule) => Rule.required().min(10).max(80),
           },
-          // 2. Slug с автогенерацией
+          {
+            name: "description",
+            type: "text",
+            title: "Краткое описание (для карточек и SEO)",
+            group: "seo",
+            rows: 3,
+            validation: (Rule) => Rule.max(200),
+          },
           {
             name: "slug",
             type: "slug",
@@ -46,13 +127,13 @@ const config = defineConfig({
             options: { source: "title", maxLength: 96 },
             validation: (Rule) => Rule.required(),
           },
-          // 3. Категории и Теги
           {
             name: "category",
-            type: "string",
+            type: "reference", 
             title: "Категория",
             group: "seo",
-            options: { list: ["Research", "Product", "Safety", "News"] },
+            to: [{ type: "category" }],
+            validation: (Rule) => Rule.required(),
           },
           {
             name: "tags",
@@ -62,14 +143,12 @@ const config = defineConfig({
             of: [{ type: "string" }],
             options: { layout: "tags" },
           },
-          // 4. Даты
           {
             name: "publishedAt",
             type: "datetime",
             title: "Дата публикации",
             group: "seo",
           },
-          // 5. Изображение с Hotspot и доп. полями
           {
             name: "mainImage",
             type: "image",
@@ -77,44 +156,58 @@ const config = defineConfig({
             group: "media",
             options: { hotspot: true },
             fields: [
-              {
-                name: "alt",
-                type: "string",
-                title: "Alt текст (для SEO)",
-                options: { isHighlighted: true },
-              },
+              { name: "alt", type: "string", title: "Alt текст" },
               { name: "caption", type: "string", title: "Подпись под фото" },
             ],
           },
-          // 6. Файлы (например, PDF отчет)
           {
             name: "downloadFile",
             type: "file",
-            title: "Прикрепить файл (PDF/DOC)",
+            title: "Прикрепить файл",
             group: "media",
           },
-          // 7. Сложный редактор контента (Block Content)
           {
             name: "body",
             type: "array",
             title: "Основной контент",
             group: "main",
             of: [
-              { type: "block" }, // Обычный текст
-              { type: "image", options: { hotspot: true } }, // Картинки внутри текста
-              // Добавляем таблицу или цитату как объект
+              { type: "block" },
+              { type: "image", options: { hotspot: true } },
               {
                 type: "object",
                 name: "blockquote",
-                title: "Цитата",
                 fields: [
                   { name: "text", type: "text", title: "Текст цитаты" },
                   { name: "author", type: "string", title: "Автор" },
                 ],
               },
+              {
+                type: "object",
+                name: "inlineFile",
+                fields: [
+                  { name: "file", type: "file" },
+                  { name: "buttonText", type: "string" },
+                ],
+              },
+              { type: "code", name: "myCodeField" },
             ],
           },
-          // 8. Ссылка на автора (Reference)
+          {
+            name: "faq",
+            type: "array",
+            title: "Частые вопросы (FAQ)",
+            group: "main",
+            of: [
+              {
+                type: "object",
+                fields: [
+                  { name: "question", type: "string" },
+                  { name: "answer", type: "text" },
+                ],
+              },
+            ],
+          },
           {
             name: "author",
             type: "reference",
@@ -124,20 +217,14 @@ const config = defineConfig({
           },
         ],
       },
-      // ВТОРОЙ ТИП ДОКУМЕНТА: АВТОРЫ
       {
         name: "author",
         type: "document",
         title: "Авторы",
         fields: [
-          { name: "name", type: "string", title: "Имя автора" },
-          { name: "bio", type: "text", title: "Биография" },
-          {
-            name: "avatar",
-            type: "image",
-            title: "Аватар",
-            options: { hotspot: true },
-          },
+          { name: "name", type: "string" },
+          { name: "bio", type: "text" },
+          { name: "avatar", type: "image", options: { hotspot: true } },
         ],
       },
     ],
