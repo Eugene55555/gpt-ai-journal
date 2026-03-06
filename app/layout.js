@@ -1,6 +1,7 @@
 import "./globals.css";
 import { getSiteSettings } from "./config/site";
-import { Providers } from "./providers"; // ДОБАВЛЕНО: Импорт провайдера
+import { Providers } from "./providers";
+import { VisualEditing } from "next-sanity"; // ДОБАВЛЕНО: Инструмент связи с админкой
 
 export const revalidate = 3600;
 
@@ -14,11 +15,13 @@ export async function generateMetadata() {
 
 export default function RootLayout({ children }) {
   return (
-    // ИСПРАВЛЕНО: suppressHydrationWarning обязателен для next-themes
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      {/* ИСПРАВЛЕНО: Стили выделения текста для темной темы */}
       <body className="bg-white text-[#111] dark:bg-[#0a0a0a] dark:text-gray-100 antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          {/* Невидимый компонент, который отвечает на запросы из админки Sanity */}
+          <VisualEditing />
+        </Providers>
       </body>
     </html>
   );

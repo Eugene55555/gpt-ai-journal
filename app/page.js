@@ -4,10 +4,11 @@ export const revalidate = 3600;
 import { createClient } from "next-sanity";
 import Link from "next/link";
 import Image from "next/image";
+import { Eye } from "lucide-react"; // ДОБАВЛЕНО: Импорт иконки глаза
 import Search from "./components/Search";
 import Pagination from "./components/Pagination";
 import SocialIcon from "./components/SocialIcon";
-import ThemeToggle from "./components/ThemeToggle"; // ДОБАВЛЕНО
+import ThemeToggle from "./components/ThemeToggle";
 import { getSiteSettings } from "./config/site";
 
 const client = createClient({
@@ -44,7 +45,8 @@ export default async function Page({ searchParams }) {
       publishedAt,
       "categoryName": category->title,
       "categoryValue": category->value,
-      "imageUrl": mainImage.asset->url
+      "imageUrl": mainImage.asset->url,
+      views // ДОБАВЛЕНО: Запрашиваем просмотры для карточек
     },
     "total": count(*[${conditions}])
   }`;
@@ -97,7 +99,6 @@ export default async function Page({ searchParams }) {
             </nav>
           </div>
 
-          {/* ИСПРАВЛЕНО: Блок с переключателем темы и кнопкой Admin */}
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link
@@ -167,6 +168,7 @@ export default async function Page({ searchParams }) {
                     )}
                   </div>
                   <div className="space-y-4">
+                    {/* ДОБАВЛЕНО: Вывод количества просмотров в карточке */}
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                         {post.categoryName || "General"}
@@ -177,6 +179,11 @@ export default async function Page({ searchParams }) {
                           "en-US",
                           { day: "numeric", month: "short", year: "numeric" },
                         )}
+                      </span>
+                      <span className="h-[1px] w-4 bg-gray-200 dark:bg-gray-700" />
+                      <span className="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-widest">
+                        <Eye size={12} />
+                        {post.views || 0}
                       </span>
                     </div>
                     <h2 className="text-[24px] font-medium leading-tight group-hover:underline underline-offset-4 decoration-gray-300 dark:decoration-gray-600 text-black dark:text-white transition-colors">

@@ -6,6 +6,8 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { codeInput } from "@sanity/code-input";
+import { media } from "sanity-plugin-media";
+import { presentationTool } from "sanity/presentation";
 
 const ALL_SOCIAL_OPTIONS = [
   { title: "Twitter / X", value: "twitter" },
@@ -50,6 +52,26 @@ const config = defineConfig({
     }),
     visionTool(),
     codeInput(),
+    media(),
+    presentationTool({
+      previewUrl:
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "http://localhost:3000",
+      resolve: {
+        mainDocuments: [
+          {
+            route: "/post/:slug",
+            filter: `_type == "post" && slug.current == $slug`,
+          },
+          // ИСПРАВЛЕНО: Теперь Sanity знает, что Настройки Сайта нужно показывать на Главной (/)
+          {
+            route: "/",
+            filter: `_type == "siteSettings"`,
+          },
+        ],
+      },
+    }),
   ],
   schema: {
     types: [
@@ -70,7 +92,6 @@ const config = defineConfig({
           },
         ],
       },
-      // ДОБАВЛЕНО: Схема для блока YouTube
       {
         name: "youtube",
         type: "object",
@@ -84,7 +105,6 @@ const config = defineConfig({
           },
         ],
       },
-      // ДОБАВЛЕНО: Схема для блока Twitter
       {
         name: "twitter",
         type: "object",
@@ -335,6 +355,14 @@ const config = defineConfig({
             options: { layout: "tags" },
           },
           {
+            name: "views",
+            type: "number",
+            title: "Просмотры",
+            group: "seo",
+            initialValue: 0,
+            description: "Автоматически обновляется при просмотре статьи",
+          },
+          {
             name: "publishedAt",
             type: "datetime",
             title: "Дата публикации",
@@ -382,7 +410,6 @@ const config = defineConfig({
                 ],
               },
               { type: "code", name: "myCodeField" },
-              // ДОБАВЛЕНО: Разрешаем добавлять YouTube и Twitter в текст статьи
               { type: "youtube" },
               { type: "twitter" },
             ],

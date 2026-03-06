@@ -16,7 +16,9 @@ import ShareButtons from "../../components/ShareButtons";
 import SocialIcon from "../../components/SocialIcon";
 import NewsletterForm from "../../components/NewsletterForm";
 import YouTubeEmbed from "../../components/YouTubeEmbed";
-import ThemeToggle from "../../components/ThemeToggle"; // ДОБАВЛЕНО
+import ThemeToggle from "../../components/ThemeToggle";
+import ViewCounter from "../../components/ViewCounter";
+import StickyActionBar from "../../components/StickyActionBar"; // ДОБАВЛЕНО
 import { getSiteSettings } from "../../config/site";
 
 const client = createClient({
@@ -183,6 +185,7 @@ export default async function PostPage({ params }) {
       "categoryValue": category->value,
       "imageUrl": mainImage.asset->url,
       "fileUrl": downloadFile.asset->url,
+      views,
       faq,
       author->{
         name,
@@ -269,6 +272,13 @@ export default async function PostPage({ params }) {
       />
       <ProgressBar />
 
+      {/* ДОБАВЛЕНО: Плавающая панель с прогресс-баром */}
+      <StickyActionBar
+        title={post.title}
+        slug={params.slug}
+        baseUrl={siteConfig.baseUrl}
+      />
+
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/50 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link
@@ -327,6 +337,8 @@ export default async function PostPage({ params }) {
                   <span className="flex items-center gap-1">
                     {readingTime} {siteConfig.readingTimeText}
                   </span>
+                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                  <ViewCounter slug={params.slug} initialViews={post.views} />
                 </div>
               </div>
 
@@ -399,7 +411,6 @@ export default async function PostPage({ params }) {
               </div>
             )}
 
-            {/* ИСПРАВЛЕНО: dark:prose-invert для автоматической окраски контента */}
             <div className="prose prose-neutral dark:prose-invert max-w-none transition-colors">
               <PortableText value={post.body} components={ptComponents} />
             </div>
