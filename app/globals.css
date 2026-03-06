@@ -7,9 +7,9 @@
     scroll-behavior: smooth;
     @apply antialiased;
   }
-  
   body {
-    @apply bg-white text-[#111] overflow-x-hidden;
+    /* ИСПРАВЛЕНО: Добавлены цвета для темной темы и плавный переход */
+    @apply bg-white text-[#111] overflow-x-hidden dark:bg-[#0a0a0a] dark:text-gray-100 transition-colors duration-300;
   }
 }
 
@@ -18,8 +18,8 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  @apply bg-transparent dark:bg-[#0a0a0a];
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-200 rounded-full hover:bg-gray-300 transition-colors;
+  @apply bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors;
 }

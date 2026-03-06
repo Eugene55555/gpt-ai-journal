@@ -1,5 +1,4 @@
 "use client";
-
 export const runtime = "edge";
 
 import { NextStudio } from "next-sanity/studio";
@@ -7,6 +6,22 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { codeInput } from "@sanity/code-input";
+
+const ALL_SOCIAL_OPTIONS = [
+  { title: "Twitter / X", value: "twitter" },
+  { title: "LinkedIn", value: "linkedin" },
+  { title: "GitHub", value: "github" },
+  { title: "YouTube", value: "youtube" },
+  { title: "Facebook", value: "facebook" },
+  { title: "Instagram", value: "instagram" },
+  { title: "TikTok", value: "tiktok" },
+  { title: "Reddit", value: "reddit" },
+  { title: "Telegram", value: "telegram" },
+  { title: "WhatsApp", value: "whatsapp" },
+  { title: "Discord", value: "discord" },
+  { title: "Email", value: "email" },
+  { title: "Copy Link / Website", value: "copy" },
+];
 
 const config = defineConfig({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -55,6 +70,35 @@ const config = defineConfig({
           },
         ],
       },
+      // ДОБАВЛЕНО: Схема для блока YouTube
+      {
+        name: "youtube",
+        type: "object",
+        title: "YouTube Video",
+        fields: [
+          {
+            name: "url",
+            type: "url",
+            title: "Ссылка на видео YouTube",
+            validation: (Rule) => Rule.required(),
+          },
+        ],
+      },
+      // ДОБАВЛЕНО: Схема для блока Twitter
+      {
+        name: "twitter",
+        type: "object",
+        title: "Twitter Post",
+        fields: [
+          {
+            name: "url",
+            type: "url",
+            title:
+              "Ссылка на твит (Например: https://twitter.com/user/status/123...)",
+            validation: (Rule) => Rule.required(),
+          },
+        ],
+      },
       {
         name: "siteSettings",
         type: "document",
@@ -62,6 +106,7 @@ const config = defineConfig({
         groups: [
           { name: "general", title: "Общие" },
           { name: "home", title: "Главная страница" },
+          { name: "article", title: "Тексты в статьях" },
           { name: "sidebar", title: "Сайдбар (Рассылка)" },
         ],
         fields: [
@@ -128,7 +173,7 @@ const config = defineConfig({
             },
           },
           {
-            name: "navItems", // ИСПРАВЛЕНО: Переименовали поле, чтобы сбросить конфликт в базе
+            name: "navItems",
             type: "array",
             title: "Меню навигации (Выберите категории)",
             group: "general",
@@ -142,7 +187,7 @@ const config = defineConfig({
           {
             name: "socials",
             type: "array",
-            title: "Социальные сети",
+            title: "Социальные сети футера",
             group: "general",
             of: [
               {
@@ -151,9 +196,17 @@ const config = defineConfig({
                   {
                     name: "platform",
                     type: "string",
-                    title: "Платформа (Например: Twitter)",
+                    title: "Название (Например: YouTube)",
                   },
                   { name: "url", type: "url", title: "Ссылка" },
+                  {
+                    name: "iconName",
+                    type: "string",
+                    title: "Выберите иконку",
+                    options: {
+                      list: ALL_SOCIAL_OPTIONS,
+                    },
+                  },
                 ],
               },
             ],
@@ -173,6 +226,38 @@ const config = defineConfig({
             rows: 2,
           },
           {
+            name: "readingTimeText",
+            type: "string",
+            title: "Текст времени чтения",
+            group: "article",
+            initialValue: "min read",
+          },
+          {
+            name: "shareTitle",
+            type: "string",
+            title: "Заголовок блока 'Поделиться'",
+            group: "article",
+            initialValue: "Share this article",
+          },
+          {
+            name: "shareOptions",
+            type: "array",
+            title: "Активные кнопки 'Поделиться'",
+            group: "article",
+            of: [{ type: "string" }],
+            options: {
+              list: ALL_SOCIAL_OPTIONS,
+            },
+            initialValue: [
+              "twitter",
+              "linkedin",
+              "facebook",
+              "reddit",
+              "telegram",
+              "copy",
+            ],
+          },
+          {
             name: "newsletterTitle",
             type: "string",
             title: "Заголовок рассылки",
@@ -184,6 +269,13 @@ const config = defineConfig({
             title: "Текст рассылки",
             group: "sidebar",
             rows: 2,
+          },
+          {
+            name: "newsletterPlaceholder",
+            type: "string",
+            title: "Подсказка в поле Email (Placeholder)",
+            group: "sidebar",
+            initialValue: "Your email address",
           },
           {
             name: "newsletterButton",
@@ -290,6 +382,9 @@ const config = defineConfig({
                 ],
               },
               { type: "code", name: "myCodeField" },
+              // ДОБАВЛЕНО: Разрешаем добавлять YouTube и Twitter в текст статьи
+              { type: "youtube" },
+              { type: "twitter" },
             ],
           },
           {
@@ -334,18 +429,51 @@ const config = defineConfig({
           {
             name: "socials",
             type: "array",
-            title: "Social Media Links",
+            title: "Ссылки автора",
             of: [
               {
                 type: "object",
                 fields: [
-                  { name: "platform", type: "string", title: "Platform" },
+                  { name: "platform", type: "string", title: "Платформа" },
                   { name: "url", type: "url", title: "URL" },
+                  {
+                    name: "iconName",
+                    type: "string",
+                    title: "Выберите иконку",
+                    options: {
+                      list: ALL_SOCIAL_OPTIONS,
+                    },
+                  },
                 ],
               },
             ],
           },
         ],
+      },
+      {
+        name: "subscriber",
+        type: "document",
+        title: "Подписчики",
+        fields: [
+          {
+            name: "email",
+            type: "string",
+            title: "Email адрес",
+            validation: (Rule) => Rule.required().email(),
+          },
+          {
+            name: "subscribedAt",
+            type: "datetime",
+            title: "Дата подписки",
+            initialValue: () => new Date().toISOString(),
+          },
+        ],
+        preview: {
+          select: {
+            title: "email",
+            subtitle: "subscribedAt",
+          },
+        },
       },
     ],
   },

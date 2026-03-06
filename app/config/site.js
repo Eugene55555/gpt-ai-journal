@@ -8,14 +8,11 @@ const client = createClient({
 });
 
 export async function getSiteSettings() {
-  // ИСПРАВЛЕНО: Теперь запрашиваем navItems[]-> вместо navigation
   const settings = await client.fetch(
     `*[_id == "siteSettings"][0]{
       ...,
-      navItems[]->{
-        title,
-        value
-      },
+      navItems[]->{ title, value },
+      socials[]{ platform, url, iconName },
       showRss,
       rssTitle,
       rssUrl,
@@ -34,31 +31,39 @@ export async function getSiteSettings() {
     footerText:
       settings?.footerText || `© ${new Date().getFullYear()} AI TALK PRO`,
     baseUrl:
-      process.env.NEXT_PUBLIC_BASE_URL || "https://gpt-ai-journal.pages.dev",
+      settings?.baseUrl ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "https://gpt-ai-journal.pages.dev",
     publisher: settings?.title || "Команда AI TALK PRO",
     postsPerPage: 6,
     showRss: settings?.showRss ?? true,
     rssTitle: settings?.rssTitle || "RSS",
     rssUrl: settings?.rssUrl || "/feed.xml",
-    baseUrl:
-      settings?.baseUrl ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      "https://gpt-ai-journal.pages.dev",
     defaultOgImageUrl: settings?.defaultOgImageUrl || "",
     fontFamily: settings?.fontFamily || "Inter",
-
     heroTitle: settings?.heroTitle || "Будущее\nинтеллекта.",
     heroSubtitle:
       settings?.heroSubtitle ||
       "Последние новости, глубокие исследования и обновления нашей платформы.",
 
+    readingTimeText: settings?.readingTimeText || "min read",
+    shareTitle: settings?.shareTitle || "Share this article",
+    // ДОБАВЛЕНО: Безопасный дефолтный список кнопок, если в админке пусто
+    shareOptions: settings?.shareOptions || [
+      "twitter",
+      "linkedin",
+      "facebook",
+      "copy",
+    ],
+
     newsletterTitle: settings?.newsletterTitle || "Рассылка",
     newsletterText:
       settings?.newsletterText ||
       "Будьте в курсе последних прорывов в области ИИ.",
+    newsletterPlaceholder:
+      settings?.newsletterPlaceholder || "Your email address",
     newsletterButton: settings?.newsletterButton || "Подписаться →",
 
-    // ИСПРАВЛЕНО: Читаем данные из нового чистого массива navItems
     navigation:
       settings?.navItems && settings.navItems.length > 0
         ? settings.navItems
@@ -74,10 +79,6 @@ export async function getSiteSettings() {
             { name: "Безопасность", value: "Safety" },
             { name: "Новости", value: "News" },
           ],
-
-    socials: settings?.socials || [
-      { platform: "Twitter", url: "#" },
-      { platform: "GitHub", url: "#" },
-    ],
+    socials: settings?.socials || [],
   };
 }
