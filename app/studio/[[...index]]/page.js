@@ -25,11 +25,11 @@ const config = defineConfig({
               .child(
                 S.document()
                   .schemaType("siteSettings")
-                  .documentId("siteSettings")
+                  .documentId("siteSettings"),
               ),
             S.divider(),
             ...S.documentTypeListItems().filter(
-              (listItem) => !["siteSettings"].includes(listItem.getId())
+              (listItem) => !["siteSettings"].includes(listItem.getId()),
             ),
           ]),
     }),
@@ -43,8 +43,16 @@ const config = defineConfig({
         type: "document",
         title: "Категории",
         fields: [
-          { name: "title", type: "string", title: "Название (Например: Исследования)" },
-          { name: "value", type: "string", title: "Значение в URL (Например: Research)" },
+          {
+            name: "title",
+            type: "string",
+            title: "Название (Например: Исследования)",
+          },
+          {
+            name: "value",
+            type: "string",
+            title: "Значение в URL (Например: Research)",
+          },
         ],
       },
       {
@@ -57,9 +65,68 @@ const config = defineConfig({
           { name: "sidebar", title: "Сайдбар (Рассылка)" },
         ],
         fields: [
-          { name: "title", type: "string", title: "Название сайта", group: "general" },
-          { name: "description", type: "text", title: "SEO Описание", group: "general" },
-          { name: "footerText", type: "string", title: "Копирайт в футере", group: "general" },
+          {
+            name: "title",
+            type: "string",
+            title: "Название сайта",
+            group: "general",
+          },
+          {
+            name: "description",
+            type: "text",
+            title: "SEO Описание",
+            group: "general",
+          },
+          {
+            name: "footerText",
+            type: "string",
+            title: "Копирайт в футере",
+            group: "general",
+          },
+          {
+            name: "showRss",
+            type: "boolean",
+            title: "Показывать ссылку на RSS",
+            group: "general",
+          },
+          {
+            name: "rssTitle",
+            type: "string",
+            title: "Текст ссылки RSS",
+            group: "general",
+          },
+          {
+            name: "rssUrl",
+            type: "string",
+            title: "URL адрес RSS",
+            group: "general",
+          },
+          {
+            name: "baseUrl",
+            type: "string",
+            title: "Базовый URL сайта",
+            group: "general",
+          },
+          {
+            name: "defaultOgImage",
+            type: "image",
+            title: "OG Image по умолчанию",
+            group: "general",
+            options: { hotspot: true },
+          },
+          {
+            name: "fontFamily",
+            type: "string",
+            title: "Шрифт сайта",
+            group: "general",
+            initialValue: "Inter",
+            options: {
+              list: [
+                { title: "Inter", value: "Inter" },
+                { title: "Geist", value: "Geist" },
+              ],
+            },
+          },
           {
             name: "navItems", // ИСПРАВЛЕНО: Переименовали поле, чтобы сбросить конфликт в базе
             type: "array",
@@ -68,7 +135,7 @@ const config = defineConfig({
             of: [
               {
                 type: "reference",
-                to: [{ type: "category" }]
+                to: [{ type: "category" }],
               },
             ],
           },
@@ -81,17 +148,49 @@ const config = defineConfig({
               {
                 type: "object",
                 fields: [
-                  { name: "platform", type: "string", title: "Платформа (Например: Twitter)" },
+                  {
+                    name: "platform",
+                    type: "string",
+                    title: "Платформа (Например: Twitter)",
+                  },
                   { name: "url", type: "url", title: "Ссылка" },
                 ],
               },
             ],
           },
-          { name: "heroTitle", type: "text", title: "Большой заголовок (Enter для переноса)", group: "home", rows: 3 },
-          { name: "heroSubtitle", type: "text", title: "Подзаголовок", group: "home", rows: 2 },
-          { name: "newsletterTitle", type: "string", title: "Заголовок рассылки", group: "sidebar" },
-          { name: "newsletterText", type: "text", title: "Текст рассылки", group: "sidebar", rows: 2 },
-          { name: "newsletterButton", type: "string", title: "Текст на кнопке", group: "sidebar" },
+          {
+            name: "heroTitle",
+            type: "text",
+            title: "Большой заголовок (Enter для переноса)",
+            group: "home",
+            rows: 3,
+          },
+          {
+            name: "heroSubtitle",
+            type: "text",
+            title: "Подзаголовок",
+            group: "home",
+            rows: 2,
+          },
+          {
+            name: "newsletterTitle",
+            type: "string",
+            title: "Заголовок рассылки",
+            group: "sidebar",
+          },
+          {
+            name: "newsletterText",
+            type: "text",
+            title: "Текст рассылки",
+            group: "sidebar",
+            rows: 2,
+          },
+          {
+            name: "newsletterButton",
+            type: "string",
+            title: "Текст на кнопке",
+            group: "sidebar",
+          },
         ],
       },
       {
@@ -129,7 +228,7 @@ const config = defineConfig({
           },
           {
             name: "category",
-            type: "reference", 
+            type: "reference",
             title: "Категория",
             group: "seo",
             to: [{ type: "category" }],
@@ -215,6 +314,13 @@ const config = defineConfig({
             group: "seo",
             to: [{ type: "author" }],
           },
+          {
+            name: "aiDisclosureText",
+            type: "string",
+            title: "AI Disclosure Text",
+            group: "seo",
+            initialValue: "AI-Assisted Content",
+          },
         ],
       },
       {
@@ -225,6 +331,20 @@ const config = defineConfig({
           { name: "name", type: "string" },
           { name: "bio", type: "text" },
           { name: "avatar", type: "image", options: { hotspot: true } },
+          {
+            name: "socials",
+            type: "array",
+            title: "Social Media Links",
+            of: [
+              {
+                type: "object",
+                fields: [
+                  { name: "platform", type: "string", title: "Platform" },
+                  { name: "url", type: "url", title: "URL" },
+                ],
+              },
+            ],
+          },
         ],
       },
     ],

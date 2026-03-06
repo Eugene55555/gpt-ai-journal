@@ -1,4 +1,5 @@
 import { createClient } from "next-sanity";
+import { getSiteSettings } from "./config/site";
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -8,7 +9,8 @@ const client = createClient({
 });
 
 export default async function sitemap() {
-  const baseUrl = "https://gpt-ai-journal.pages.dev"; // Замени на свой реальный домен
+  const siteConfig = await getSiteSettings();
+  const baseUrl = siteConfig.baseUrl;
 
   // Получаем все посты из Sanity (только нужные поля для скорости)
   const posts = await client.fetch(`

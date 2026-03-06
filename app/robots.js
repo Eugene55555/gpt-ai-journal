@@ -1,5 +1,8 @@
-export default function robots() {
-  const baseUrl = "https://gpt-ai-journal.pages.dev"; // Замени на свой реальный домен
+import { getSiteSettings } from "./config/site";
+
+export default async function robots() {
+  const siteConfig = await getSiteSettings();
+  const baseUrl = siteConfig.baseUrl;
 
   return {
     rules: {

@@ -11,7 +11,7 @@ export default function ProgressBar() {
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
       if (scrollHeight) {
         setCompletion(
-          Number((currentProgress / scrollHeight).toFixed(2)) * 100
+          Number((currentProgress / scrollHeight).toFixed(2)) * 100,
         );
       }
     };
@@ -23,7 +23,7 @@ export default function ProgressBar() {
   return (
     <div className="fixed top-[64px] left-0 w-full h-[2px] z-[60] pointer-events-none">
       <div
-        className="h-full bg-black transition-all duration-150 ease-out"
+        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-150 ease-out"
         style={{ width: `${completion}%` }}
       />
     </div>

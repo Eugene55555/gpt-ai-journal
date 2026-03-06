@@ -15,40 +15,66 @@ export async function getSiteSettings() {
       navItems[]->{
         title,
         value
-      }
+      },
+      showRss,
+      rssTitle,
+      rssUrl,
+      baseUrl,
+      "defaultOgImageUrl": defaultOgImage.asset->url,
+      fontFamily
     }`,
     {},
-    { next: { revalidate: 0 } }
+    { next: { revalidate: 0 } },
   );
 
   return {
     name: settings?.title || "AI TALK PRO",
-    description: settings?.description || "Журнал о будущем интеллекта и технологий",
-    footerText: settings?.footerText || `© ${new Date().getFullYear()} AI TALK PRO`,
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://gpt-ai-journal.pages.dev",
+    description:
+      settings?.description || "Журнал о будущем интеллекта и технологий",
+    footerText:
+      settings?.footerText || `© ${new Date().getFullYear()} AI TALK PRO`,
+    baseUrl:
+      process.env.NEXT_PUBLIC_BASE_URL || "https://gpt-ai-journal.pages.dev",
     publisher: settings?.title || "Команда AI TALK PRO",
     postsPerPage: 6,
-    
+    showRss: settings?.showRss ?? true,
+    rssTitle: settings?.rssTitle || "RSS",
+    rssUrl: settings?.rssUrl || "/feed.xml",
+    baseUrl:
+      settings?.baseUrl ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "https://gpt-ai-journal.pages.dev",
+    defaultOgImageUrl: settings?.defaultOgImageUrl || "",
+    fontFamily: settings?.fontFamily || "Inter",
+
     heroTitle: settings?.heroTitle || "Будущее\nинтеллекта.",
-    heroSubtitle: settings?.heroSubtitle || "Последние новости, глубокие исследования и обновления нашей платформы.",
-    
+    heroSubtitle:
+      settings?.heroSubtitle ||
+      "Последние новости, глубокие исследования и обновления нашей платформы.",
+
     newsletterTitle: settings?.newsletterTitle || "Рассылка",
-    newsletterText: settings?.newsletterText || "Будьте в курсе последних прорывов в области ИИ.",
+    newsletterText:
+      settings?.newsletterText ||
+      "Будьте в курсе последних прорывов в области ИИ.",
     newsletterButton: settings?.newsletterButton || "Подписаться →",
 
     // ИСПРАВЛЕНО: Читаем данные из нового чистого массива navItems
-    navigation: settings?.navItems && settings.navItems.length > 0 
-      ? settings.navItems
-          .filter(n => n !== null)
-          .map(n => ({ name: n.title || "Без названия", value: n.value || "" }))
-      : [
-          { name: "Все", value: "" },
-          { name: "Исследования", value: "Research" },
-          { name: "Продукты", value: "Product" },
-          { name: "Безопасность", value: "Safety" },
-          { name: "Новости", value: "News" },
-        ],
-        
+    navigation:
+      settings?.navItems && settings.navItems.length > 0
+        ? settings.navItems
+            .filter((n) => n !== null)
+            .map((n) => ({
+              name: n.title || "Без названия",
+              value: n.value || "",
+            }))
+        : [
+            { name: "Все", value: "" },
+            { name: "Исследования", value: "Research" },
+            { name: "Продукты", value: "Product" },
+            { name: "Безопасность", value: "Safety" },
+            { name: "Новости", value: "News" },
+          ],
+
     socials: settings?.socials || [
       { platform: "Twitter", url: "#" },
       { platform: "GitHub", url: "#" },
