@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import { createClient } from "next-sanity";
 import { getSiteSettings } from "../config/site";
 

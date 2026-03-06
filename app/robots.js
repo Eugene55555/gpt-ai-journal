@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import { getSiteSettings } from "./config/site";
 
 export default async function robots() {
