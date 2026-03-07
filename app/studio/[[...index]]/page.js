@@ -32,22 +32,32 @@ const config = defineConfig({
   basePath: "/studio",
   plugins: [
     structureTool({
+      // ИСПРАВЛЕНО: Красивая структура меню слева
       structure: (S) =>
         S.list()
-          .title("Контент")
+          .title("Управление журналом")
           .items([
             S.listItem()
+              .title("Публикации")
+              .child(S.documentTypeList("post").title("Все статьи")),
+            S.listItem()
+              .title("Категории")
+              .child(S.documentTypeList("category").title("Категории")),
+            S.divider(),
+            S.listItem()
+              .title("Авторы")
+              .child(S.documentTypeList("author").title("Авторы")),
+            S.listItem()
+              .title("Подписчики (Рассылка)")
+              .child(S.documentTypeList("subscriber").title("База email")),
+            S.divider(),
+            S.listItem()
               .title("Настройки сайта")
-              .id("siteSettings")
               .child(
                 S.document()
                   .schemaType("siteSettings")
                   .documentId("siteSettings"),
               ),
-            S.divider(),
-            ...S.documentTypeListItems().filter(
-              (listItem) => !["siteSettings"].includes(listItem.getId()),
-            ),
           ]),
     }),
     visionTool(),
@@ -64,7 +74,10 @@ const config = defineConfig({
             route: "/post/:slug",
             filter: `_type == "post" && slug.current == $slug`,
           },
-          // ИСПРАВЛЕНО: Теперь Sanity знает, что Настройки Сайта нужно показывать на Главной (/)
+          {
+            route: "/author/:slug",
+            filter: `_type == "author" && slug.current == $slug`,
+          },
           {
             route: "/",
             filter: `_type == "siteSettings"`,
@@ -124,9 +137,10 @@ const config = defineConfig({
         type: "document",
         title: "Настройки сайта",
         groups: [
-          { name: "general", title: "Общие" },
+          { name: "general", title: "Общие", default: true },
           { name: "home", title: "Главная страница" },
           { name: "article", title: "Тексты в статьях" },
+          { name: "stickyBar", title: "Плавающая панель" },
           { name: "sidebar", title: "Сайдбар (Рассылка)" },
         ],
         fields: [
@@ -197,12 +211,7 @@ const config = defineConfig({
             type: "array",
             title: "Меню навигации (Выберите категории)",
             group: "general",
-            of: [
-              {
-                type: "reference",
-                to: [{ type: "category" }],
-              },
-            ],
+            of: [{ type: "reference", to: [{ type: "category" }] }],
           },
           {
             name: "socials",
@@ -223,9 +232,7 @@ const config = defineConfig({
                     name: "iconName",
                     type: "string",
                     title: "Выберите иконку",
-                    options: {
-                      list: ALL_SOCIAL_OPTIONS,
-                    },
+                    options: { list: ALL_SOCIAL_OPTIONS },
                   },
                 ],
               },
@@ -255,19 +262,17 @@ const config = defineConfig({
           {
             name: "shareTitle",
             type: "string",
-            title: "Заголовок блока 'Поделиться'",
+            title: "Заголовок блока 'Поделиться' (Внизу статьи)",
             group: "article",
             initialValue: "Share this article",
           },
           {
             name: "shareOptions",
             type: "array",
-            title: "Активные кнопки 'Поделиться'",
+            title: "Кнопки 'Поделиться' (Внизу статьи)",
             group: "article",
             of: [{ type: "string" }],
-            options: {
-              list: ALL_SOCIAL_OPTIONS,
-            },
+            options: { list: ALL_SOCIAL_OPTIONS },
             initialValue: [
               "twitter",
               "linkedin",
@@ -276,6 +281,25 @@ const config = defineConfig({
               "telegram",
               "copy",
             ],
+          },
+          {
+            name: "showStickyBar",
+            type: "boolean",
+            title: "Включить плавающую панель (Sticky Bar)",
+            group: "stickyBar",
+            initialValue: true,
+            description: "Показывать ли верхнюю панель при чтении статьи.",
+          },
+          {
+            name: "stickyShareOptions",
+            type: "array",
+            title: "Кнопки на плавающей панели",
+            group: "stickyBar",
+            of: [{ type: "string" }],
+            options: { list: ALL_SOCIAL_OPTIONS },
+            initialValue: ["twitter", "linkedin", "copy"],
+            description:
+              "Рекомендуется не более 3-4 кнопок, чтобы не перегружать шапку.",
           },
           {
             name: "newsletterTitle",
@@ -310,7 +334,8 @@ const config = defineConfig({
         type: "document",
         title: "Профессиональные публикации",
         groups: [
-          { name: "main", title: "Контент" },
+          // ИСПРАВЛЕНО: default: true сделает так, что вкладка "All fields" пропадет, и мы сразу будем в Контенте
+          { name: "main", title: "Контент", default: true },
           { name: "media", title: "Медиа" },
           { name: "seo", title: "SEO и настройки" },
         ],
@@ -386,12 +411,30 @@ const config = defineConfig({
             group: "media",
           },
           {
+            name: "keyTakeaways",
+            type: "array",
+            title: "TL;DR / Ключевые мысли",
+            group: "main",
+            of: [{ type: "string" }],
+            description:
+              "Добавьте 3-4 главных тезиса статьи. Они красиво отобразятся перед основным текстом.",
+          },
+          {
             name: "body",
             type: "array",
             title: "Основной контент",
             group: "main",
             of: [
-              { type: "block" },
+              {
+                type: "block",
+                // ИСПРАВЛЕНО: Убрали H1 из списка стилей, чтобы авторы не ломали SEO
+                styles: [
+                  { title: "Обычный текст", value: "normal" },
+                  { title: "Заголовок 2 (H2)", value: "h2" },
+                  { title: "Заголовок 3 (H3)", value: "h3" },
+                  { title: "Цитата", value: "blockquote" },
+                ],
+              },
               { type: "image", options: { hotspot: true } },
               {
                 type: "object",
@@ -442,6 +485,8 @@ const config = defineConfig({
             title: "AI Disclosure Text",
             group: "seo",
             initialValue: "AI-Assisted Content",
+            description:
+              "Метка для Google (означает, что в тексте использовался ИИ). Оставьте пустым, чтобы не выводить на сайте.",
           },
         ],
       },
@@ -451,6 +496,13 @@ const config = defineConfig({
         title: "Авторы",
         fields: [
           { name: "name", type: "string" },
+          {
+            name: "slug",
+            type: "slug",
+            title: "URL адрес автора",
+            options: { source: "name", maxLength: 96 },
+            validation: (Rule) => Rule.required(),
+          },
           { name: "bio", type: "text" },
           { name: "avatar", type: "image", options: { hotspot: true } },
           {
@@ -467,9 +519,7 @@ const config = defineConfig({
                     name: "iconName",
                     type: "string",
                     title: "Выберите иконку",
-                    options: {
-                      list: ALL_SOCIAL_OPTIONS,
-                    },
+                    options: { list: ALL_SOCIAL_OPTIONS },
                   },
                 ],
               },

@@ -13,10 +13,7 @@ export async function getSiteSettings() {
       ...,
       navItems[]->{ title, value },
       socials[]{ platform, url, iconName },
-      showRss,
-      rssTitle,
-      rssUrl,
-      baseUrl,
+      showRss, rssTitle, rssUrl, baseUrl,
       "defaultOgImageUrl": defaultOgImage.asset->url,
       fontFamily
     }`,
@@ -25,30 +22,30 @@ export async function getSiteSettings() {
   );
 
   return {
-    name: settings?.title || "AI TALK PRO",
+    name: settings?.title || "AI TALK",
     description:
-      settings?.description || "Журнал о будущем интеллекта и технологий",
+      settings?.description ||
+      "A journal about the future of intelligence and technology.",
     footerText:
-      settings?.footerText || `© ${new Date().getFullYear()} AI TALK PRO`,
+      settings?.footerText ||
+      `© ${new Date().getFullYear()} AI TALK. All rights reserved.`,
     baseUrl:
       settings?.baseUrl ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "https://gpt-ai-journal.pages.dev",
-    publisher: settings?.title || "Команда AI TALK PRO",
+    publisher: settings?.title || "AI TALK Team",
     postsPerPage: 6,
     showRss: settings?.showRss ?? true,
-    rssTitle: settings?.rssTitle || "RSS",
+    rssTitle: settings?.rssTitle || "RSS Feed",
     rssUrl: settings?.rssUrl || "/feed.xml",
     defaultOgImageUrl: settings?.defaultOgImageUrl || "",
     fontFamily: settings?.fontFamily || "Inter",
-    heroTitle: settings?.heroTitle || "Будущее\nинтеллекта.",
+    heroTitle: settings?.heroTitle || "The future of\nintelligence.",
     heroSubtitle:
       settings?.heroSubtitle ||
-      "Последние новости, глубокие исследования и обновления нашей платформы.",
-
+      "Latest news, deep research, and updates from our platform.",
     readingTimeText: settings?.readingTimeText || "min read",
     shareTitle: settings?.shareTitle || "Share this article",
-    // ДОБАВЛЕНО: Безопасный дефолтный список кнопок, если в админке пусто
     shareOptions: settings?.shareOptions || [
       "twitter",
       "linkedin",
@@ -56,28 +53,35 @@ export async function getSiteSettings() {
       "copy",
     ],
 
-    newsletterTitle: settings?.newsletterTitle || "Рассылка",
+    // ДОБАВЛЕНО: Получаем настройки Sticky Bar
+    showStickyBar: settings?.showStickyBar ?? true,
+    stickyShareOptions: settings?.stickyShareOptions || [
+      "twitter",
+      "linkedin",
+      "copy",
+    ],
+
+    newsletterTitle: settings?.newsletterTitle || "Newsletter",
     newsletterText:
       settings?.newsletterText ||
-      "Будьте в курсе последних прорывов в области ИИ.",
+      "Stay up to date with the latest AI breakthroughs.",
     newsletterPlaceholder:
       settings?.newsletterPlaceholder || "Your email address",
-    newsletterButton: settings?.newsletterButton || "Подписаться →",
-
+    newsletterButton: settings?.newsletterButton || "Subscribe →",
     navigation:
       settings?.navItems && settings.navItems.length > 0
         ? settings.navItems
             .filter((n) => n !== null)
             .map((n) => ({
-              name: n.title || "Без названия",
+              name: n.title || "Untitled",
               value: n.value || "",
             }))
         : [
-            { name: "Все", value: "" },
-            { name: "Исследования", value: "Research" },
-            { name: "Продукты", value: "Product" },
-            { name: "Безопасность", value: "Safety" },
-            { name: "Новости", value: "News" },
+            { name: "All", value: "" },
+            { name: "Research", value: "Research" },
+            { name: "Product", value: "Product" },
+            { name: "Safety", value: "Safety" },
+            { name: "News", value: "News" },
           ],
     socials: settings?.socials || [],
   };

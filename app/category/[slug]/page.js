@@ -4,12 +4,12 @@ export const revalidate = 3600;
 import { createClient } from "next-sanity";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye } from "lucide-react";
-import Search from "./components/Search";
-import Pagination from "./components/Pagination";
-import SocialIcon from "./components/SocialIcon";
-import ThemeToggle from "./components/ThemeToggle";
-import { getSiteSettings } from "./config/site";
+import { Eye, ArrowLeft } from "lucide-react";
+import Search from "../../components/Search";
+import Pagination from "../../components/Pagination";
+import SocialIcon from "../../components/SocialIcon";
+import ThemeToggle from "../../components/ThemeToggle";
+import { getSiteSettings } from "../../config/site";
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -18,16 +18,43 @@ const client = createClient({
   useCdn: false,
 });
 
-export default async function Page({ searchParams }) {
+export async function generateMetadata({ params }) {
+  const siteConfig = await getSiteSettings();
+  const category = siteConfig.navigation.find(
+    (n) => n.value.toLowerCase() === params.slug.toLowerCase(),
+  );
+
+  if (!category) return { title: `Category not found | ${siteConfig.name}` };
+
+  return {
+    title: `${category.name} | ${siteConfig.name}`,
+    description: `Read all articles about ${category.name}`,
+    alternates: {
+      canonical: `/category/${params.slug.toLowerCase()}`,
+    },
+  };
+}
+
+export default async function CategoryPage({ params, searchParams }) {
   const siteConfig = await getSiteSettings();
 
+  const currentCategory = siteConfig.navigation.find(
+    (n) => n.value.toLowerCase() === params.slug.toLowerCase(),
+  );
+
+  if (!currentCategory) {
+    const { notFound } = await import("next/navigation");
+    notFound();
+  }
+
+  const categoryValue = currentCategory.value;
   const search = searchParams?.search || "";
   const currentPage = Number(searchParams?.page) || 1;
 
   const start = (currentPage - 1) * siteConfig.postsPerPage;
   const end = start + siteConfig.postsPerPage;
 
-  let conditions = `_type == "post"`;
+  let conditions = `_type == "post" && category->value == $categoryValue`;
   if (search) {
     conditions += ` && (title match $search || description match $search)`;
   }
@@ -47,7 +74,7 @@ export default async function Page({ searchParams }) {
     "total": count(*[${conditions}])
   }`;
 
-  const queryParams = { start, end };
+  const queryParams = { start, end, categoryValue };
   if (search) queryParams.search = `*${search}*`;
 
   const data = await client.fetch(query, queryParams, {
@@ -75,7 +102,8 @@ export default async function Page({ searchParams }) {
                 const baseHref = itemValue
                   ? `/category/${itemValue.toLowerCase()}`
                   : "/";
-                const isActive = itemValue === "";
+                const isActive =
+                  itemValue.toLowerCase() === params.slug.toLowerCase();
 
                 return (
                   <Link
@@ -104,10 +132,10 @@ export default async function Page({ searchParams }) {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 pb-12 border-b border-gray-100 dark:border-gray-800 transition-colors">
             <div className="max-w-3xl">
               <h1 className="text-[56px] md:text-[84px] font-medium tracking-tightest leading-[0.9] mb-8 text-black dark:text-white whitespace-pre-line">
-                {siteConfig.heroTitle}
+                {currentCategory.name}
               </h1>
               <p className="text-[20px] text-gray-500 dark:text-gray-400 font-light max-w-[500px] leading-relaxed">
-                {siteConfig.heroSubtitle}
+                Posts in category «{currentCategory.name}»
               </p>
             </div>
             <div className="w-full lg:w-auto">
@@ -119,13 +147,13 @@ export default async function Page({ searchParams }) {
         {posts.length === 0 ? (
           <div className="py-24 text-center">
             <p className="text-gray-400 dark:text-gray-500 text-[18px]">
-              No articles found.
+              No articles found in this category.
             </p>
             <Link
               href="/"
               className="text-black dark:text-white underline mt-4 inline-block font-medium"
             >
-              Reset filters
+              Back to all posts
             </Link>
           </div>
         ) : (

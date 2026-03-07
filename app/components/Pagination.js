@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-export default function Pagination({ currentPage, totalPages, category, search }) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  category,
+  search,
+}) {
   if (totalPages <= 1) return null;
 
-  // Функция для создания правильного URL с учетом текущих фильтров
   const createPageUrl = (pageNumber) => {
     const params = new URLSearchParams();
     if (category) params.set("category", category);
@@ -16,18 +20,18 @@ export default function Pagination({ currentPage, totalPages, category, search }
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-20 pt-10 border-t border-gray-100">
+    <div className="flex items-center justify-center gap-2 mt-20 pt-10 border-t border-gray-100 dark:border-gray-800 transition-colors">
       {/* Кнопка Назад */}
       {currentPage > 1 ? (
         <Link
           href={createPageUrl(currentPage - 1)}
-          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
-          aria-label="Предыдущая страница"
+          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white transition-colors"
+          aria-label="Previous page"
         >
           <ArrowLeft size={18} />
         </Link>
       ) : (
-        <div className="w-10 h-10" /> // Заглушка для сохранения центровки
+        <div className="w-10 h-10" />
       )}
 
       {/* Номера страниц */}
@@ -40,8 +44,8 @@ export default function Pagination({ currentPage, totalPages, category, search }
               href={createPageUrl(page)}
               className={`w-10 h-10 flex items-center justify-center rounded-full text-[14px] font-medium transition-all ${
                 isActive
-                  ? "bg-black text-white shadow-md"
-                  : "bg-gray-50 text-gray-500 hover:bg-gray-200 hover:text-black"
+                  ? "bg-black dark:bg-white text-white dark:text-black shadow-md"
+                  : "bg-gray-50 dark:bg-[#1a1a1a] text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white"
               }`}
             >
               {page}
@@ -54,13 +58,13 @@ export default function Pagination({ currentPage, totalPages, category, search }
       {currentPage < totalPages ? (
         <Link
           href={createPageUrl(currentPage + 1)}
-          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
-          aria-label="Следующая страница"
+          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white transition-colors"
+          aria-label="Next page"
         >
           <ArrowRight size={18} />
         </Link>
       ) : (
-        <div className="w-10 h-10" /> // Заглушка для сохранения центровки
+        <div className="w-10 h-10" />
       )}
     </div>
   );
