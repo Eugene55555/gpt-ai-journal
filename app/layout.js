@@ -2,7 +2,9 @@ import "./globals.css";
 import { getSiteSettings } from "./config/site";
 import { Providers } from "./providers";
 import { VisualEditing } from "next-sanity";
-import { GoogleTagManager } from "@next/third-parties/google"; // Убрали лишний импорт Analytics
+import { GoogleTagManager } from "@next/third-parties/google";
+// Добавляем импорт headers для определения текущего пути
+import { headers } from "next/headers";
 
 export const revalidate = 3600;
 
@@ -40,6 +42,13 @@ export async function generateMetadata() {
 }
 
 export default function RootLayout({ children }) {
+  // Получаем заголовки и проверяем путь страницы
+  const headersList = headers();
+  const fullPath = headersList.get("x-invoke-path") || "";
+
+  // Если путь начинается с /studio, считаем, что мы в админке
+  const isStudio = fullPath.startsWith("/studio");
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className="bg-white text-[#111] dark:bg-[#0a0a0a] dark:text-gray-100 antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
@@ -49,8 +58,10 @@ export default function RootLayout({ children }) {
         </Providers>
       </body>
 
-      {/* Теперь управлением всеми тегами занимается только GTM */}
-      <GoogleTagManager gtmId="GTM-TF6XK2BD" />
+      {/* Загружаем GTM только если это НЕ админка.
+          Это уберет ошибки в консоли и исключит тебя из статистики.
+      */}
+      {!isStudio && <GoogleTagManager gtmId="GTM-TF6XK2BD" />}
     </html>
   );
 }
