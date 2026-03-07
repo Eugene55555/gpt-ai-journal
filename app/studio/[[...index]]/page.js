@@ -557,11 +557,7 @@ const config = defineConfig({
 });
 
 export default function StudioPage() {
-  return (
-    <div style={{ height: "100vh", width: "100vw", fixed: "top", left: 0 }}>
-      <NextStudio config={config} />
-    </div>
-  );
+  return <NextStudio config={config} />;
 }
 
 if (typeof window !== "undefined") {
