@@ -2,6 +2,7 @@ import "./globals.css";
 import { getSiteSettings } from "./config/site";
 import { Providers } from "./providers";
 import { VisualEditing } from "next-sanity";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 export const revalidate = 3600;
 
@@ -9,7 +10,7 @@ export async function generateMetadata() {
   const siteConfig = await getSiteSettings();
 
   return {
-    metadataBase: new URL(siteConfig.baseUrl), // ИСПРАВЛЕНО: Базовый URL для всех мета-тегов
+    metadataBase: new URL(siteConfig.baseUrl),
     title: {
       default: siteConfig.name,
       template: `%s | ${siteConfig.name}`,
@@ -32,6 +33,10 @@ export async function generateMetadata() {
       index: true,
       follow: true,
     },
+    // ПРЯМОЙ ХАРДКОД КОДА ВЕРИФИКАЦИИ
+    verification: {
+      google: "xdYiBLmtVjUWTERNRf5vJpwNJo90v6p-4hWN8D1zDoU",
+    },
   };
 }
 
@@ -44,6 +49,10 @@ export default function RootLayout({ children }) {
           <VisualEditing />
         </Providers>
       </body>
+
+      {/* ПРЯМОЙ ХАРДКОД КЛЮЧЕЙ АНАЛИТИКИ И GTM */}
+      <GoogleAnalytics gaId="G-3KBWGT6ECL" />
+      <GoogleTagManager gtmId="GTM-TF6XK2BD" />
     </html>
   );
 }
