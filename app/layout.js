@@ -2,7 +2,7 @@ import "./globals.css";
 import { getSiteSettings } from "./config/site";
 import { Providers } from "./providers";
 import { VisualEditing } from "next-sanity";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
+import { GoogleTagManager } from "@next/third-parties/google"; // Убрали лишний импорт Analytics
 
 export const revalidate = 3600;
 
@@ -33,7 +33,6 @@ export async function generateMetadata() {
       index: true,
       follow: true,
     },
-    // ПРЯМОЙ ХАРДКОД КОДА ВЕРИФИКАЦИИ
     verification: {
       google: "xdYiBLmtVjUWTERNRf5vJpwNJo90v6p-4hWN8D1zDoU",
     },
@@ -50,8 +49,7 @@ export default function RootLayout({ children }) {
         </Providers>
       </body>
 
-      {/* ПРЯМОЙ ХАРДКОД КЛЮЧЕЙ АНАЛИТИКИ И GTM */}
-      <GoogleAnalytics gaId="G-3KBWGT6ECL" />
+      {/* Теперь управлением всеми тегами занимается только GTM */}
       <GoogleTagManager gtmId="GTM-TF6XK2BD" />
     </html>
   );
