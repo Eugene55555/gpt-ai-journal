@@ -32,7 +32,6 @@ const config = defineConfig({
   basePath: "/studio",
   plugins: [
     structureTool({
-      // ИСПРАВЛЕНО: Красивая структура меню слева
       structure: (S) =>
         S.list()
           .title("Управление журналом")
@@ -334,7 +333,6 @@ const config = defineConfig({
         type: "document",
         title: "Профессиональные публикации",
         groups: [
-          // ИСПРАВЛЕНО: default: true сделает так, что вкладка "All fields" пропадет, и мы сразу будем в Контенте
           { name: "main", title: "Контент", default: true },
           { name: "media", title: "Медиа" },
           { name: "seo", title: "SEO и настройки" },
@@ -427,12 +425,16 @@ const config = defineConfig({
             of: [
               {
                 type: "block",
-                // ИСПРАВЛЕНО: Убрали H1 из списка стилей, чтобы авторы не ломали SEO
+                // ВЕРНУЛИ ВСЕ СТИЛИ (H1 - H6)
                 styles: [
                   { title: "Обычный текст", value: "normal" },
+                  { title: "Заголовок 1 (H1)", value: "h1" },
                   { title: "Заголовок 2 (H2)", value: "h2" },
                   { title: "Заголовок 3 (H3)", value: "h3" },
-                  { title: "Цитата", value: "blockquote" },
+                  { title: "Заголовок 4 (H4)", value: "h4" },
+                  { title: "Заголовок 5 (H5)", value: "h5" },
+                  { title: "Заголовок 6 (H6)", value: "h6" },
+                  { title: "Цитата (Blockquote)", value: "blockquote" },
                 ],
               },
               { type: "image", options: { hotspot: true } },
